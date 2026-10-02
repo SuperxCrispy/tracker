@@ -12,15 +12,17 @@
             margin: 0; 
             padding: 10px; 
             box-sizing: border-box;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .header {
             text-align: center;
-            padding: 15px 0 5px 0;
+            padding: 10px 0 5px 0;
         }
         h2 { margin: 0; color: #00adb5; font-size: 22px; }
         .subtitle { color: #616e85; font-size: 12px; margin-top: 4px; }
         
-        /* Watchlist Selector Styling */
         .selector-box {
             background: #161722;
             padding: 12px;
@@ -40,24 +42,22 @@
             outline: none;
         }
 
-        /* Widget Workspace Viewport */
         .widget-viewport {
             width: 100%;
-            height: calc(100vh - 160px);
-            min-height: 480px;
+            flex-grow: 1;
+            min-height: 450px;
             border-radius: 12px;
             overflow: hidden;
             background: #131722;
             border: 1px solid #2a2c3f;
             box-sizing: border-box;
         }
-        .tradingview-widget-container {
+        iframe {
             width: 100%;
             height: 100%;
+            border: none;
         }
     </style>
-    <!-- Pre-caching external core libraries to fix mobile initialization dropouts -->
-    <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
@@ -89,48 +89,23 @@
         </select>
     </div>
 
-    <!-- Live Stream Technical Terminal Window -->
     <div class="widget-viewport" id="terminalFrame">
-        <div class="tradingview-widget-container">
-            <div id="tradingview_live_chart" style="height:100%;"></div>
-        </div>
+        <!-- Secure iframe will generate inside here -->
     </div>
 
 <script>
     function loadActiveWidget() {
-        const symbol = document.getElementById('tickerSelect').value;
+        const symbol = encodeURIComponent(document.getElementById('tickerSelect').value);
         const container = document.getElementById('terminalFrame');
         
-        // Wipe old widget reference out of memory frame
-        container.innerHTML = '<div class="tradingview-widget-container"><div id="tradingview_live_chart" style="height:100%;"></div></div>';
+        // This targets the secure web player URL natively used by mobile devices to bypass script blocks
+        const embedUrl = `https://tradingview.com{symbol}&interval=D&hidesidetoolbar=1&symboledit=0&saveimage=1&toolbarbg=f1f3f6&studies=%5B%22PivotPointsStandard%40tv-basicstudies%22%5D&theme=dark&style=1&timezone=Exchange&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en`;
         
-        // Instantly generate structural technical view layouts
-        if (typeof TradingView !== 'undefined') {
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": symbol,
-                "interval": "D",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "enable_publishing": false,
-                "hide_side_toolbar": true,
-                "allow_symbol_change": false,
-                "container_id": "tradingview_live_chart",
-                "studies": [
-                    "PivotPointsStandard@tv-basicstudies"
-                ]
-            });
-        }
+        container.innerHTML = `<iframe id="tradingview_live_chart" src="${embedUrl}" allowfullscreen></iframe>`;
     }
 
-    // Double-fallback hook to ensure rendering works flawlessly even on slow load connections
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        setTimeout(loadActiveWidget, 100);
-    } else {
-        document.addEventListener("DOMContentLoaded", loadActiveWidget);
-    }
+    // Boot app instantly
+    loadActiveWidget();
 </script>
 
 </body>
