@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support & Resistance Tracker</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #00adb5; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        select, button { width: 100%; padding: 12px; margin-top: 5px; background: #2d2d2d; color: #fff; border: 1px solid #444; border-radius: 6px; font-size: 16px; }
+        button { background: #00adb5; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #007b82; }
+        .card { background: #252525; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .status { font-size: 20px; font-weight: bold; margin: 10px 0; }
+        .support { color: #ff5252; }
+        .resistance { color: #ffeb3b; }
+        .neutral { color: #69f0ae; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>S&R Tracker</h2>
+    <label for="tickerSelect">Select Asset:</label>
+    <select id="tickerSelect">
+        <option value="BTC">BTC - Bitcoin</option>
+        <option value="ETH">ETH - Ethereum</option>
+        <option value="SOL">SOL - Solana</option>
+        <option value="ZEC">ZEC - Zcash</option>
+        <option value="AAPL">AAPL - Apple</option>
+        <option value="NVDA">NVDA - Nvidia</option>
+        <option value="BA">BA - Boeing</option>
+        <option value="NIKE">NIKE - Nike</option>
+        <option value="SPY">SPY - S&P 500 ETF</option>
+        <option value="MES">MES - Micro E-mini S&P</option>
+        <option value="MNQ">MNQ - Micro E-mini Nasdaq</option>
+    </select>
+    
+    <button onclick="checkLevels()">Check Price Level</button>
+    
+    <div class="card" id="outputCard" style="display:none;">
+        <h3 id="assetTitle"></h3>
+        <p>Simulated Price: <span id="currentPrice"></span></p>
+        <p>Calculated Support: <span id="supportLevel"></span></p>
+        <p>Calculated Resistance: <span id="resistanceLevel"></span></p>
+        <div class="status" id="statusText"></div>
+    </div>
+</div>
+
+<script>
+function checkLevels() {
+    const ticker = document.getElementById('tickerSelect').value;
+    const basePrices = {
+        BTC: 64000, ETH: 3400, SOL: 145, ZEC: 38,
+        AAPL: 225, NVDA: 120, BA: 170, NIKE: 82,
+        SPY: 550, MES: 5550, MNQ: 19800
+    };
+    
+    const price = basePrices[ticker] * (1 + (Math.random() * 0.02 - 0.01));
+    const support = price * 0.985;
+    const resistance = price * 1.015;
+    
+    document.getElementById('assetTitle').innerText = ticker + " Analysis";
+    document.getElementById('currentPrice').innerText = price.toFixed(2);
+    document.getElementById('supportLevel').innerText = support.toFixed(2);
+    document.getElementById('resistanceLevel').innerText = resistance.toFixed(2);
+    
+    const statusEl = document.getElementById('statusText');
+    const r = Math.random();
+    if (r < 0.33) {
+        statusEl.className = "status support";
+        statusEl.innerText = "Status: Testing Support Floor";
+    } else if (r < 0.66) {
+        statusEl.className = "status resistance";
+        statusEl.innerText = "Status: Testing Resistance Ceiling";
+    } else {
+        statusEl.className = "status neutral";
+        statusEl.innerText = "Status: Mid-Range (No Immediate Level)";
+    }
+    
+    document.getElementById('outputCard').style.display = "block";
+}
+</script>
+</body>
+</html>
