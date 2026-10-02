@@ -43,7 +43,7 @@
         /* Widget Workspace Viewport */
         .widget-viewport {
             width: 100%;
-            height: calc(100vh - 150px);
+            height: calc(100vh - 160px);
             min-height: 480px;
             border-radius: 12px;
             overflow: hidden;
@@ -56,6 +56,8 @@
             height: 100%;
         }
     </style>
+    <!-- Pre-caching external core libraries to fix mobile initialization dropouts -->
+    <script type="text/javascript" src="https://tradingview.com"></script>
 </head>
 <body>
 
@@ -89,7 +91,9 @@
 
     <!-- Live Stream Technical Terminal Window -->
     <div class="widget-viewport" id="terminalFrame">
-        <!-- Embedded Technical Script will render live inside this box -->
+        <div class="tradingview-widget-container">
+            <div id="tradingview_live_chart" style="height:100%;"></div>
+        </div>
     </div>
 
 <script>
@@ -100,12 +104,8 @@
         // Wipe old widget reference out of memory frame
         container.innerHTML = '<div class="tradingview-widget-container"><div id="tradingview_live_chart" style="height:100%;"></div></div>';
         
-        // Dynamically request official clean tracking iframe build
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://tradingview.com';
-        script.async = true;
-        script.onload = function() {
+        // Instantly generate structural technical view layouts
+        if (typeof TradingView !== 'undefined') {
             new TradingView.widget({
                 "autosize": true,
                 "symbol": symbol,
@@ -118,20 +118,20 @@
                 "hide_side_toolbar": true,
                 "allow_symbol_change": false,
                 "container_id": "tradingview_live_chart",
-                // This injects the exact technical analysis overlay panel directly on mobile viewport
                 "studies": [
                     "PivotPointsStandard@tv-basicstudies"
                 ]
             });
-        };
-        
-        document.head.appendChild(script);
+        }
     }
 
-    // Initialize the primary live asset asset view on system boot
-    window.onload = loadActiveWidget;
+    // Double-fallback hook to ensure rendering works flawlessly even on slow load connections
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(loadActiveWidget, 100);
+    } else {
+        document.addEventListener("DOMContentLoaded", loadActiveWidget);
+    }
 </script>
 
 </body>
 </html>
-
